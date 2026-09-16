@@ -1,4 +1,4 @@
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 import Layout from "./components/Layout";
 import Dashboard from "./pages/Dashboard";
 import DataLayanan from "./pages/DataLayanan";
@@ -13,10 +13,11 @@ import ComingSoon from "./pages/ComingSoon";
 export default function App() {
   return (
     <Routes>
+      <Route path="/" element={<Navigate to="/login" replace />} />
       <Route path="/login" element={<Login />} />
 
       <Route element={<Layout />}>
-        <Route path="/" element={<Dashboard />} />
+        <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/data-layanan" element={<DataLayanan />} />
         <Route path="/data-layanan/tambah" element={<FormLayanan />} />
         <Route path="/dinas" element={<Dinas />} />

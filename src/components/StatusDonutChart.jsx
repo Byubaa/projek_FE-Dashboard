@@ -1,16 +1,19 @@
 import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
 
-export default function StatusDonutChart({ data, total }) {
+export default function StatusDonutChart({ data, total, subtitle = "Total", size = 150 }) {
+  const innerR = Math.round(size * 0.32);
+  const outerR = Math.round(size * 0.48);
+
   return (
-    <div className="relative h-[130px] w-[130px] mx-auto">
+    <div className="relative mx-auto shrink-0" style={{ width: size, height: size }}>
       <ResponsiveContainer width="100%" height="100%">
         <PieChart>
           <Pie
             data={data}
             dataKey="value"
             nameKey="label"
-            innerRadius={38}
-            outerRadius={58}
+            innerRadius={innerR}
+            outerRadius={outerR}
             paddingAngle={2}
             stroke="none"
           >
@@ -20,9 +23,9 @@ export default function StatusDonutChart({ data, total }) {
           </Pie>
         </PieChart>
       </ResponsiveContainer>
-      <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <p className="text-xl font-extrabold text-slate-800">{total}</p>
-        <p className="text-[10px] font-semibold uppercase text-slate-400">Total</p>
+      <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+        <p className="text-2xl font-bold text-slate-800 leading-none">{total}</p>
+        <p className="text-[10px] font-medium text-slate-400 mt-1 leading-none">{subtitle}</p>
       </div>
     </div>
   );

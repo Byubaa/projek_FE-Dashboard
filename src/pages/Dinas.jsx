@@ -55,7 +55,7 @@ export default function Dinas() {
       <Topbar title="Dinas / Instansi" subtitle="Kelola data dinas dan instansi yang terdaftar" />
 
       <main className="flex-1 p-6 space-y-6">
-        <Breadcrumb items={[{ label: "Beranda", to: "/" }, { label: "Dinas / Instansi" }]} />
+        <Breadcrumb items={[{ label: "Beranda", to: "/dashboard" }, { label: "Dinas / Instansi" }]} />
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {STATS.map((s) => (

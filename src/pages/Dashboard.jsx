@@ -1,11 +1,11 @@
 import { Link } from "react-router-dom";
 import {
+  Building,
   Building2,
   Layers,
   CheckCircle2,
   RefreshCw,
   ShieldCheck,
-  MapPin,
   Landmark,
   Globe,
   ChevronDown,
@@ -27,11 +27,11 @@ const STATS = [
 ];
 
 const REGIONS = [
-  { label: "Kota Yogyakarta", type: "Kota", icon: MapPin },
-  { label: "Kab. Sleman", type: "Kabupaten", icon: MapPin },
-  { label: "Kab. Bantul", type: "Kabupaten", icon: MapPin },
-  { label: "Kab. Kulon Progo", type: "Kabupaten", icon: MapPin },
-  { label: "Kab. Gunungkidul", type: "Kabupaten", icon: MapPin },
+  { label: "Kota Yogyakarta", type: "Kota", icon: Building2 },
+  { label: "Kab. Sleman", type: "Kabupaten", icon: Building },
+  { label: "Kab. Bantul", type: "Kabupaten", icon: Building },
+  { label: "Kab. Kulon Progo", type: "Kabupaten", icon: Building },
+  { label: "Kab. Gunungkidul", type: "Kabupaten", icon: Building },
   { label: "Provinsi DIY", type: "Provinsi", icon: Landmark },
   { label: "Pusat", type: "Pusat", icon: Globe },
 ];
@@ -59,22 +59,28 @@ export default function Dashboard() {
 
         {/* Region hierarchy */}
         <section>
-          <p className="text-xs font-semibold text-slate-600 mb-2">Cakupan Wilayah (Hierarki Pemerintahan)</p>
-          <div className="flex flex-wrap gap-3 rounded-lg border border-slate-300 bg-white p-3">
-            {REGIONS.map(({ label, type, icon: Icon }) => (
-              <div
-                key={label}
-                className="flex items-center gap-2 rounded-lg border border-slate-300 px-3 py-2 min-w-[140px]"
-              >
-                <span className="flex h-[29px] w-[29px] shrink-0 items-center justify-center rounded-lg bg-slate-100">
-                  <Icon size={16} className="text-slate-500" />
-                </span>
-                <div className="min-w-0">
-                  <p className="text-[11.5px] font-semibold text-slate-800 truncate">{label}</p>
-                  <p className="text-xs text-slate-400 truncate">{type}</p>
+          <p className="text-xs font-bold text-slate-700 mb-2.5">
+            Cakupan Wilayah (Hierarki Pemerintahan)
+          </p>
+          <div className="rounded-xl border border-slate-200 bg-white p-3.5 shadow-sm">
+            <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2.5">
+              {REGIONS.map(({ label, type, icon: Icon }) => (
+                <div
+                  key={label}
+                  className="flex items-center gap-2.5 rounded-lg border border-slate-200/80 bg-white px-3 py-2.5 hover:border-slate-300 transition-colors"
+                >
+                  <Icon size={18} strokeWidth={1.8} className="text-red-600 shrink-0" />
+                  <div className="min-w-0">
+                    <p className="text-[11.5px] font-bold text-slate-800 truncate leading-tight">
+                      {label}
+                    </p>
+                    <p className="text-[10px] text-slate-400 truncate mt-0.5 leading-tight">
+                      {type}
+                    </p>
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </section>
 

@@ -14,9 +14,10 @@ import {
 } from "lucide-react";
 import Logo from "./Logo";
 import Avatar from "./Avatar";
+import sidebarBg from "../assets/SidebarBG.png";
 
 const NAV_ITEMS = [
-  { to: "/", label: "Dashboard", icon: Home, end: true, hasSubmenu: false },
+  { to: "/dashboard", label: "Dashboard", icon: Home, end: true, hasSubmenu: false },
   { to: "/data-layanan", label: "Data Layanan", icon: Archive, hasSubmenu: true },
   { to: "/dinas", label: "Dinas / Instansi", icon: Landmark, hasSubmenu: true },
   { to: "/status", label: "Status", icon: Shield, hasSubmenu: true },
@@ -29,12 +30,13 @@ const NAV_ITEMS = [
 
 export default function Sidebar() {
   return (
-    <aside className="hidden lg:flex flex-col w-[280px] shrink-0 h-screen sticky top-0 bg-[#9F1D1D] text-white overflow-hidden">
+    <aside
+      className="hidden lg:flex flex-col w-[280px] shrink-0 h-screen sticky top-0 bg-[#9F1D1D] text-white overflow-hidden bg-cover bg-center bg-no-repeat"
+      style={{ backgroundImage: `url(${sidebarBg})` }}
+    >
       {/* Brand header */}
       <div className="flex items-center gap-3 px-4 py-4 border-b border-[#991B1B]">
-        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white p-1">
-          <Logo size={32} className="rounded-full" />
-        </div>
+        <Logo size={36} />
         <div className="min-w-0">
           <h1 className="font-semibold text-sm leading-tight text-[#FFFFFF] truncate">
             Layanan Informasi Publik

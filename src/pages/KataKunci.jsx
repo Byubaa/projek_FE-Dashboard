@@ -17,7 +17,7 @@ export default function KataKunci() {
       <Topbar title="Kata Kunci" subtitle="Cari informasi berdasarkan kata kunci yang tersedia" />
 
       <main className="flex-1 p-6 space-y-6">
-        <Breadcrumb items={[{ label: "Beranda", to: "/" }, { label: "Kata Kunci" }]} />
+        <Breadcrumb items={[{ label: "Beranda", to: "/dashboard" }, { label: "Kata Kunci" }]} />
 
         {/* Search card */}
         <div className="rounded-xl bg-white p-6 shadow-card">

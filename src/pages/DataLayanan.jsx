@@ -12,7 +12,7 @@ export default function DataLayanan() {
       <Topbar title="Data Layanan" subtitle="Layanan Informasi Publik" />
 
       <main className="flex-1 p-6">
-        <Breadcrumb items={[{ label: "Beranda", to: "/" }, { label: "Data Layanan" }]} />
+        <Breadcrumb items={[{ label: "Beranda", to: "/dashboard" }, { label: "Data Layanan" }]} />
 
         <div className="rounded-xl bg-white p-6 shadow-card">
           <div className="flex flex-wrap items-center justify-between gap-3 mb-4">

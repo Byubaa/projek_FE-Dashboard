@@ -1,14 +1,14 @@
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
 
 const SERIES = [
-  { key: "Total", color: "#8491a5" },
+  { key: "Total", color: "#2f8df5" },
   { key: "Selesai", color: "#20b982" },
   { key: "Ditolak", color: "#f04455" },
 ];
 
-export default function TrendChart({ data }) {
+export default function TrendChart({ data, height = 210 }) {
   return (
-    <div className="h-[276px] w-full">
+    <div style={{ height }} className="w-full">
       <ResponsiveContainer width="100%" height="100%">
         <LineChart data={data} margin={{ top: 4, right: 8, bottom: 0, left: -20 }}>
           <CartesianGrid vertical={false} stroke="#eef1f5" />

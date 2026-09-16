@@ -43,7 +43,7 @@ export default function Status() {
       <Topbar title="Status Layanan" subtitle="Pantau status permohonan layanan informasi publik" />
 
       <main className="flex-1 p-6 space-y-6">
-        <Breadcrumb items={[{ label: "Beranda", to: "/" }, { label: "Status" }]} />
+        <Breadcrumb items={[{ label: "Beranda", to: "/dashboard" }, { label: "Status" }]} />
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {STATS.map((s) => (
