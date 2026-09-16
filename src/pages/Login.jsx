@@ -35,7 +35,7 @@ export default function Login() {
           <img
             src={logoJogja}
             alt="Logo Pemda DIY"
-            className="w-20 h-20 sm:w-24 sm:h-24 object-contain mb-6 drop-shadow-md"
+            className="w-30 h-30 sm:w-36 sm:h-36 object-contain mb-6 drop-shadow-md"
           />
 
           {/* Title */}
@@ -66,7 +66,7 @@ export default function Login() {
             <img
               src={logoJogja}
               alt="Logo Pemda DIY"
-              className="w-16 h-16 sm:w-20 sm:h-20 object-contain drop-shadow-md"
+              className="w-20 h-20 sm:w-24 sm:h-24 object-contain drop-shadow-md"
             />
             <div>
               <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight leading-tight">
