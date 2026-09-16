@@ -1,0 +1,32 @@
+export const LAYANAN = [
+  { id: 1, wilayah: "Provinsi DIY", dinas: "Dinas Komunikasi, Informatika dan Statistik DIY", layanan: "PPID", kataKunci: ["Informasi Publik"], status: "Aktif" },
+  { id: 2, wilayah: "Kota Yogyakarta", dinas: "Dinas Kependudukan dan Pencatatan Sipil", layanan: "Cek NIK", kataKunci: ["nik", "kependudukan"], status: "Aktif" },
+  { id: 3, wilayah: "Sleman", dinas: "Dinas Pendidikan", layanan: "PPDB Online", kataKunci: ["ppdb", "pendaftaran", "sekolah"], status: "Perlu Update" },
+  { id: 4, wilayah: "Bantul", dinas: "Dinas Kesehatan", layanan: "Pendaftaran Rawat Jalan", kataKunci: ["rawat jalan", "kesehatan"], status: "Aktif" },
+  { id: 5, wilayah: "Kulon Progo", dinas: "Dinas Sosial", layanan: "Cek Penerima Bantuan", kataKunci: ["bantuan", "bansos", "sosial"], status: "Non aktif" },
+  { id: 6, wilayah: "Gunungkidul", dinas: "DPMPTSP", layanan: "Perizinan Berusaha", kataKunci: ["perizinan", "izin usaha", "oss"], status: "Aktif" },
+  { id: 7, wilayah: "Kota Yogyakarta", dinas: "Dinas Pariwisata", layanan: "Statistik Pariwisata", kataKunci: ["wisata", "statistik"], status: "Aktif" },
+  { id: 8, wilayah: "Provinsi DIY", dinas: "Dinas Kominfo DIY", layanan: "Permohonan Informasi", kataKunci: ["ppid", "permohonan"], status: "Perlu Update" },
+  { id: 9, wilayah: "Sleman", dinas: "Dinas Pendidikan", layanan: "Data Pokok Pendidikan", kataKunci: ["dapodik", "sekolah"], status: "Aktif" },
+  { id: 10, wilayah: "Bantul", dinas: "Dinas Lingkungan Hidup", layanan: "Informasi Lingkungan", kataKunci: ["lingkungan", "amdal"], status: "Non aktif" },
+  { id: 11, wilayah: "Kulon Progo", dinas: "Dinas Pertanian dan Pangan", layanan: "Info Harga Pangan", kataKunci: ["pangan", "harga"], status: "Aktif" },
+  { id: 12, wilayah: "Gunungkidul", dinas: "Dinas Kesehatan", layanan: "Jadwal Puskesmas", kataKunci: ["puskesmas", "jadwal"], status: "Aktif" },
+  { id: 13, wilayah: "Kota Yogyakarta", dinas: "Dinas Perhubungan", layanan: "Info Lalu Lintas", kataKunci: ["lalu lintas", "transportasi"], status: "Aktif" },
+  { id: 14, wilayah: "Provinsi DIY", dinas: "Dinas Tenaga Kerja", layanan: "Info Lowongan Kerja", kataKunci: ["kerja", "lowongan"], status: "Perlu Update" },
+  { id: 15, wilayah: "Sleman", dinas: "DPMPTSP", layanan: "Izin Mendirikan Bangunan", kataKunci: ["imb", "bangunan"], status: "Aktif" },
+  { id: 16, wilayah: "Bantul", dinas: "Dinas Sosial", layanan: "Pengaduan Bansos", kataKunci: ["bansos", "pengaduan"], status: "Aktif" },
+  { id: 17, wilayah: "Kulon Progo", dinas: "Dinas Kominfo", layanan: "PPID Kabupaten", kataKunci: ["ppid"], status: "Non aktif" },
+  { id: 18, wilayah: "Gunungkidul", dinas: "Dinas Pariwisata", layanan: "Peta Wisata", kataKunci: ["wisata", "peta"], status: "Aktif" },
+  { id: 19, wilayah: "Kota Yogyakarta", dinas: "Dinas Kesehatan", layanan: "Cek Ketersediaan Kamar RS", kataKunci: ["rumah sakit", "kamar"], status: "Aktif" },
+  { id: 20, wilayah: "Provinsi DIY", dinas: "Dinas Pendidikan, Pemuda dan Olahraga", layanan: "Beasiswa DIY", kataKunci: ["beasiswa", "pendidikan"], status: "Perlu Update" },
+  { id: 21, wilayah: "Sleman", dinas: "Dinas Kependudukan", layanan: "Cetak KK Online", kataKunci: ["kk", "kependudukan"], status: "Aktif" },
+  { id: 22, wilayah: "Bantul", dinas: "DPMPTSP", layanan: "Izin Usaha Mikro", kataKunci: ["izin", "umkm"], status: "Aktif" },
+  { id: 23, wilayah: "Kulon Progo", dinas: "Dinas Pertanian", layanan: "Info Penyuluhan", kataKunci: ["penyuluhan", "pertanian"], status: "Aktif" },
+  { id: 24, wilayah: "Gunungkidul", dinas: "Dinas Sosial", layanan: "Data Kemiskinan", kataKunci: ["kemiskinan", "data"], status: "Non aktif" },
+];
+
+export const STATUS_VARIANT = {
+  Aktif: "green",
+  "Perlu Update": "amber",
+  "Non aktif": "red",
+};
