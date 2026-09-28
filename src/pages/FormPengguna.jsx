@@ -1155,19 +1155,15 @@ export default function FormPengguna() {
               >
 
                 <p>
-                  • Gunakan username yang mudah dikenali.
                 </p>
 
                 <p>
-                  • Jangan menggunakan username yang sama.
                 </p>
 
                 <p>
-                  • Gunakan password yang tidak mudah ditebak.
                 </p>
 
                 <p>
-                  • Saat edit, password boleh dikosongkan jika tidak ingin diganti.
                 </p>
 
               </div>
