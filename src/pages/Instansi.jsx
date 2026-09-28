@@ -9,16 +9,17 @@ import {
 } from "react-router-dom";
 
 import {
+  Building2,
   Search,
-  Tags,
-  Database,
-  Layers,
-  Hash,
-  Eye,
+  Plus,
   Pencil,
+  Eye,
   Trash2,
+  CheckCircle2,
+  XCircle,
+  ShieldAlert,
   X,
-  RefreshCcw,
+  ExternalLink,
 } from "lucide-react";
 
 import Topbar from "../components/Topbar";
@@ -33,7 +34,7 @@ import {
 // PAGE
 // ============================================================
 
-export default function KataKunci() {
+export default function Dinas() {
 
   const navigate =
     useNavigate();
@@ -43,8 +44,13 @@ export default function KataKunci() {
   // ==========================================================
 
   const [
-    rows,
-    setRows,
+    instansi,
+    setInstansi,
+  ] = useState([]);
+
+  const [
+    wilayahList,
+    setWilayahList,
   ] = useState([]);
 
   // ==========================================================
@@ -55,20 +61,11 @@ export default function KataKunci() {
     summary,
     setSummary,
   ] = useState({
-    total_keyword: 0,
-    keyword_unik: 0,
-    total_layanan: 0,
-    layanan_punya_keyword: 0,
+    total: 0,
+    aktif: 0,
+    nonaktif: 0,
+    perlu_verifikasi: 0,
   });
-
-  // ==========================================================
-  // SEARCH
-  // ==========================================================
-
-  const [
-    search,
-    setSearch,
-  ] = useState("");
 
   // ==========================================================
   // PAGINATION
@@ -83,6 +80,25 @@ export default function KataKunci() {
     total: 0,
     total_pages: 1,
   });
+
+  // ==========================================================
+  // FILTER
+  // ==========================================================
+
+  const [
+    search,
+    setSearch,
+  ] = useState("");
+
+  const [
+    wilayah,
+    setWilayah,
+  ] = useState("");
+
+  const [
+    status,
+    setStatus,
+  ] = useState("");
 
   // ==========================================================
   // STATE
@@ -113,6 +129,33 @@ export default function KataKunci() {
   ] = useState(false);
 
   // ==========================================================
+  // LOAD WILAYAH
+  // ==========================================================
+
+  async function loadWilayah() {
+
+    try {
+
+      const result =
+        await apiRequest(
+          "/wilayah"
+        );
+
+      setWilayahList(
+        result?.data || []
+      );
+
+    } catch (err) {
+
+      console.error(
+        "Gagal mengambil wilayah:",
+        err
+      );
+
+    }
+  }
+
+  // ==========================================================
   // LOAD SUMMARY
   // ==========================================================
 
@@ -122,32 +165,33 @@ export default function KataKunci() {
 
       const result =
         await apiRequest(
-          "/layanan-keyword/summary"
+          "/instansi/summary"
         );
 
       setSummary(
         result?.data || {
-          total_keyword: 0,
-          keyword_unik: 0,
-          total_layanan: 0,
-          layanan_punya_keyword: 0,
+          total: 0,
+          aktif: 0,
+          nonaktif: 0,
+          perlu_verifikasi: 0,
         }
       );
 
     } catch (err) {
 
       console.error(
-        "Gagal mengambil summary keyword:",
+        "Gagal mengambil summary instansi:",
         err
       );
+
     }
   }
 
   // ==========================================================
-  // LOAD DATA
+  // LOAD DATA INSTANSI
   // ==========================================================
 
-  async function loadData() {
+  async function loadInstansi() {
 
     setLoading(true);
     setError("");
@@ -181,12 +225,34 @@ export default function KataKunci() {
         );
       }
 
+      if (
+        wilayah
+      ) {
+
+        params.set(
+          "wilayah_id",
+          wilayah
+        );
+      }
+
+      if (
+        status
+      ) {
+
+        params.set(
+          "aktif",
+          status === "Aktif"
+            ? "true"
+            : "false"
+        );
+      }
+
       const result =
         await apiRequest(
-          `/layanan-keyword?${params.toString()}`
+          `/instansi?${params.toString()}`
         );
 
-      setRows(
+      setInstansi(
         result?.data || []
       );
 
@@ -203,10 +269,10 @@ export default function KataKunci() {
 
       setError(
         err.message ||
-        "Gagal mengambil data kata kunci."
+        "Gagal mengambil data instansi."
       );
 
-      setRows([]);
+      setInstansi([]);
 
     } finally {
 
@@ -221,22 +287,25 @@ export default function KataKunci() {
 
   useEffect(() => {
 
+    loadWilayah();
     loadSummary();
 
   }, []);
 
   // ==========================================================
-  // DATA
+  // LOAD DATA
   // ==========================================================
 
   useEffect(() => {
 
-    loadData();
+    loadInstansi();
 
   }, [
     pagination.page,
     pagination.limit,
     search,
+    wilayah,
+    status,
   ]);
 
   // ==========================================================
@@ -260,6 +329,46 @@ export default function KataKunci() {
   }
 
   // ==========================================================
+  // WILAYAH FILTER
+  // ==========================================================
+
+  function handleWilayah(
+    e
+  ) {
+
+    setWilayah(
+      e.target.value
+    );
+
+    setPagination(
+      (current) => ({
+        ...current,
+        page: 1,
+      })
+    );
+  }
+
+  // ==========================================================
+  // STATUS FILTER
+  // ==========================================================
+
+  function handleStatus(
+    e
+  ) {
+
+    setStatus(
+      e.target.value
+    );
+
+    setPagination(
+      (current) => ({
+        ...current,
+        page: 1,
+      })
+    );
+  }
+
+  // ==========================================================
   // VIEW
   // ==========================================================
 
@@ -271,7 +380,7 @@ export default function KataKunci() {
 
       const result =
         await apiRequest(
-          `/layanan-keyword/${item.id}`
+          `/instansi/${item.id}`
         );
 
       setSelected(
@@ -284,7 +393,6 @@ export default function KataKunci() {
       setSelected(
         item
       );
-
     }
 
     setShowDetail(
@@ -302,7 +410,7 @@ export default function KataKunci() {
 
     const confirmed =
       window.confirm(
-        `Hapus kata kunci "${item.keyword}"?`
+        `Hapus instansi "${item.nama_instansi}"?`
       );
 
     if (!confirmed) {
@@ -312,16 +420,18 @@ export default function KataKunci() {
     try {
 
       await apiRequest(
-        `/layanan-keyword/${item.id}`,
+        `/instansi/${item.id}`,
         {
-          method: "DELETE",
+          method:
+            "DELETE",
         }
       );
 
       await loadSummary();
 
+      // Kalau data terakhir di halaman
       if (
-        rows.length === 1 &&
+        instansi.length === 1 &&
         pagination.page > 1
       ) {
 
@@ -335,7 +445,7 @@ export default function KataKunci() {
 
       } else {
 
-        await loadData();
+        await loadInstansi();
 
       }
 
@@ -343,21 +453,9 @@ export default function KataKunci() {
 
       window.alert(
         err.message ||
-        "Gagal menghapus kata kunci."
+        "Gagal menghapus instansi."
       );
     }
-  }
-
-  // ==========================================================
-  // REFRESH
-  // ==========================================================
-
-  async function handleRefresh() {
-
-    await Promise.all([
-      loadSummary(),
-      loadData(),
-    ]);
   }
 
   // ==========================================================
@@ -382,9 +480,9 @@ export default function KataKunci() {
       ====================================================== */}
 
       <Topbar
-        title="Kata Kunci"
+        title="Dinas / Instansi"
         subtitle="
-          Kelola kata kunci layanan informasi publik
+          Kelola data dinas dan instansi yang terdaftar
         "
       />
 
@@ -395,7 +493,6 @@ export default function KataKunci() {
       <main
         className="
           flex-1
-          bg-slate-100
           p-6
         "
       >
@@ -410,10 +507,9 @@ export default function KataKunci() {
               to:
                 "/dashboard",
             },
-
             {
               label:
-                "Kata Kunci",
+                "Dinas / Instansi",
             },
           ]}
         />
@@ -432,7 +528,7 @@ export default function KataKunci() {
               px-4
               py-3
               text-xs
-              text-red-700
+              text-red-600
             "
           >
             {error}
@@ -441,7 +537,7 @@ export default function KataKunci() {
         )}
 
         {/* ===================================================
-            SUMMARY
+            STAT CARDS
         ==================================================== */}
 
         <div
@@ -455,62 +551,70 @@ export default function KataKunci() {
           "
         >
 
-          <KeywordCard
-            icon={Database}
+          {/* TOTAL */}
+
+          <StatCard
+            icon={Building2}
             iconBg="bg-red-50"
             iconColor="text-red-600"
-            label="Total Kata Kunci"
+            label="Total Dinas / Instansi"
             value={
-              summary.total_keyword
+              summary.total
             }
-            description="
-              Seluruh record keyword
+            helper="
+              Seluruh data instansi
             "
           />
 
-          <KeywordCard
-            icon={Hash}
-            iconBg="bg-blue-50"
-            iconColor="text-blue-600"
-            label="Kata Kunci Unik"
-            value={
-              summary.keyword_unik
-            }
-            description="
-              Keyword unik
-            "
-          />
+          {/* AKTIF */}
 
-          <KeywordCard
-            icon={Layers}
+          <StatCard
+            icon={CheckCircle2}
             iconBg="bg-emerald-50"
             iconColor="text-emerald-600"
-            label="Total Layanan"
+            label="Aktif"
             value={
-              summary.total_layanan
+              summary.aktif
             }
-            description="
-              Seluruh layanan
+            helper="
+              Instansi aktif
             "
           />
 
-          <KeywordCard
-            icon={Tags}
+          {/* NONAKTIF */}
+
+          <StatCard
+            icon={XCircle}
+            iconBg="bg-slate-100"
+            iconColor="text-slate-500"
+            label="Nonaktif"
+            value={
+              summary.nonaktif
+            }
+            helper="
+              Instansi nonaktif
+            "
+          />
+
+          {/* VERIFIKASI */}
+
+          <StatCard
+            icon={ShieldAlert}
             iconBg="bg-amber-50"
             iconColor="text-amber-600"
-            label="Layanan Ber-keyword"
+            label="Perlu Verifikasi"
             value={
-              summary.layanan_punya_keyword
+              summary.perlu_verifikasi
             }
-            description="
-              Layanan memiliki keyword
+            helper="
+              Website belum tersedia
             "
           />
 
         </div>
 
         {/* ===================================================
-            TABLE
+            DATA CARD
         ==================================================== */}
 
         <div
@@ -528,11 +632,6 @@ export default function KataKunci() {
 
           <div
             className="
-              flex
-              flex-wrap
-              items-center
-              justify-between
-              gap-3
               border-b
               border-slate-100
               px-6
@@ -540,70 +639,42 @@ export default function KataKunci() {
             "
           >
 
-            <div>
-
-              <h2
-                className="
-                  text-sm
-                  font-semibold
-                  text-slate-700
-                "
-              >
-                Daftar Kata Kunci
-              </h2>
-
-              <p
-                className="
-                  mt-1
-                  text-xs
-                  text-slate-400
-                "
-              >
-                Data berasal langsung dari tabel layanan_keyword.
-              </p>
-
-            </div>
-
             <div
               className="
                 flex
+                flex-wrap
                 items-center
-                gap-2
+                justify-between
+                gap-3
               "
             >
 
-              <button
-                type="button"
-                onClick={
-                  handleRefresh
-                }
-                className="
-                  flex
-                  items-center
-                  gap-1.5
-                  rounded-lg
-                  border
-                  border-slate-200
-                  bg-white
-                  px-3
-                  py-2
-                  text-xs
-                  font-medium
-                  text-slate-600
-                  hover:bg-slate-50
-                "
-              >
+              <div>
 
-                <RefreshCcw
-                  size={13}
-                />
+                <h2
+                  className="
+                    text-sm
+                    font-semibold
+                    text-slate-700
+                  "
+                >
+                  Daftar Dinas / Instansi
+                </h2>
 
-                Refresh
+                <p
+                  className="
+                    mt-1
+                    text-xs
+                    text-slate-400
+                  "
+                >
+                  Data langsung dari tabel instansi.
+                </p>
 
-              </button>
+              </div>
 
               <Link
-                to="/kata-kunci/tambah"
+                to="/dinas/tambah"
                 className="
                   flex
                   items-center
@@ -619,11 +690,11 @@ export default function KataKunci() {
                 "
               >
 
-                <Tags
-                  size={13}
+                <Plus
+                  size={14}
                 />
 
-                Tambah Kata Kunci
+                Tambah Dinas / Instansi
 
               </Link>
 
@@ -632,21 +703,27 @@ export default function KataKunci() {
           </div>
 
           {/* =================================================
-              SEARCH
+              FILTER
           ================================================== */}
 
           <div
             className="
+              flex
+              flex-wrap
+              items-center
+              gap-2
               px-6
               py-4
             "
           >
 
+            {/* SEARCH */}
+
             <label
               className="
                 relative
-                block
-                max-w-xl
+                min-w-[240px]
+                flex-1
               "
             >
 
@@ -671,7 +748,7 @@ export default function KataKunci() {
                   handleSearch
                 }
                 placeholder="
-                  Cari kata kunci, layanan, instansi, wilayah...
+                  Cari dinas atau instansi...
                 "
                 className="
                   w-full
@@ -679,7 +756,7 @@ export default function KataKunci() {
                   border
                   border-slate-300
                   bg-slate-50
-                  py-2.5
+                  py-2
                   pl-9
                   pr-3
                   text-xs
@@ -693,9 +770,96 @@ export default function KataKunci() {
 
             </label>
 
+            {/* WILAYAH */}
+
+            <select
+              value={
+                wilayah
+              }
+              onChange={
+                handleWilayah
+              }
+              className="
+                rounded-lg
+                border
+                border-slate-300
+                bg-slate-50
+                px-3
+                py-2
+                text-xs
+                font-medium
+                text-slate-700
+                outline-none
+              "
+            >
+
+              <option value="">
+                Semua Wilayah
+              </option>
+
+              {wilayahList.map(
+                (item) => (
+
+                  <option
+                    key={
+                      item.id
+                    }
+                    value={
+                      item.id
+                    }
+                  >
+                    {
+                      item.nama
+                    }
+                  </option>
+
+                )
+              )}
+
+            </select>
+
+            {/* STATUS */}
+
+            <select
+              value={
+                status
+              }
+              onChange={
+                handleStatus
+              }
+              className="
+                rounded-lg
+                border
+                border-slate-300
+                bg-slate-50
+                px-3
+                py-2
+                text-xs
+                font-medium
+                text-slate-700
+                outline-none
+              "
+            >
+
+              <option value="">
+                Semua Status
+              </option>
+
+              <option value="Aktif">
+                Aktif
+              </option>
+
+              <option value="Nonaktif">
+                Nonaktif
+              </option>
+
+            </select>
+
           </div>
 
-          {/* LOADING */}
+          {/* =================================================
+              LOADING
+          ================================================== */}
 
           {loading ? (
 
@@ -708,7 +872,7 @@ export default function KataKunci() {
                 text-slate-400
               "
             >
-              Memuat data kata kunci...
+              Memuat data instansi...
             </div>
 
           ) : (
@@ -722,7 +886,7 @@ export default function KataKunci() {
               <table
                 className="
                   w-full
-                  min-w-[1100px]
+                  min-w-[950px]
                   text-left
                   text-xs
                 "
@@ -758,37 +922,7 @@ export default function KataKunci() {
                         font-bold
                       "
                     >
-                      Kata Kunci
-                    </th>
-
-                    <th
-                      className="
-                        px-4
-                        py-3
-                        font-bold
-                      "
-                    >
-                      Kode Layanan
-                    </th>
-
-                    <th
-                      className="
-                        px-4
-                        py-3
-                        font-bold
-                      "
-                    >
-                      Nama Layanan
-                    </th>
-
-                    <th
-                      className="
-                        px-4
-                        py-3
-                        font-bold
-                      "
-                    >
-                      Instansi
+                      Nama Dinas / Instansi
                     </th>
 
                     <th
@@ -803,7 +937,37 @@ export default function KataKunci() {
 
                     <th
                       className="
-                        w-24
+                        px-4
+                        py-3
+                        font-bold
+                      "
+                    >
+                      Kode Instansi
+                    </th>
+
+                    <th
+                      className="
+                        px-4
+                        py-3
+                        text-center
+                        font-bold
+                      "
+                    >
+                      Jumlah Layanan
+                    </th>
+
+                    <th
+                      className="
+                        px-4
+                        py-3
+                        font-bold
+                      "
+                    >
+                      Status
+                    </th>
+
+                    <th
+                      className="
                         px-4
                         py-3
                         text-center
@@ -819,7 +983,7 @@ export default function KataKunci() {
 
                 <tbody>
 
-                  {rows.map(
+                  {instansi.map(
                     (
                       item,
                       index
@@ -833,6 +997,10 @@ export default function KataKunci() {
                           pagination.limit +
                         index +
                         1;
+
+                      const aktif =
+                        item.aktif ===
+                        true;
 
                       return (
 
@@ -860,7 +1028,7 @@ export default function KataKunci() {
                             {nomor}
                           </td>
 
-                          {/* KEYWORD */}
+                          {/* NAMA */}
 
                           <td
                             className="
@@ -869,87 +1037,36 @@ export default function KataKunci() {
                             "
                           >
 
-                            <span
-                              className="
-                                inline-flex
-                                rounded-md
-                                bg-blue-50
-                                px-2.5
-                                py-1
-                                text-[10px]
-                                font-semibold
-                                text-blue-700
-                              "
-                            >
-                              {
-                                item.keyword ||
-                                "-"
-                              }
-                            </span>
+                            <div>
 
-                          </td>
+                              <p
+                                className="
+                                  font-semibold
+                                  text-slate-800
+                                "
+                              >
+                                {
+                                  item.nama_instansi
+                                }
+                              </p>
 
-                          {/* KODE */}
+                              {item.singkatan && (
 
-                          <td
-                            className="
-                              px-4
-                              py-4
-                              font-mono
-                              text-[10px]
-                              text-slate-500
-                            "
-                          >
-                            {
-                              item.kode_layanan ||
-                              "-"
-                            }
-                          </td>
+                                <p
+                                  className="
+                                    mt-0.5
+                                    text-[10px]
+                                    text-slate-400
+                                  "
+                                >
+                                  {
+                                    item.singkatan
+                                  }
+                                </p>
 
-                          {/* LAYANAN */}
+                              )}
 
-                          <td
-                            className="
-                              px-4
-                              py-4
-                            "
-                          >
-
-                            <p
-                              className="
-                                max-w-[260px]
-                                font-semibold
-                                text-slate-800
-                              "
-                            >
-                              {
-                                item.nama_layanan ||
-                                "-"
-                              }
-                            </p>
-
-                          </td>
-
-                          {/* INSTANSI */}
-
-                          <td
-                            className="
-                              px-4
-                              py-4
-                              text-slate-600
-                            "
-                          >
-
-                            <p
-                              className="
-                                max-w-[260px]
-                              "
-                            >
-                              {
-                                item.nama_instansi ||
-                                "-"
-                              }
-                            </p>
+                            </div>
 
                           </td>
 
@@ -963,9 +1080,116 @@ export default function KataKunci() {
                             "
                           >
                             {
-                              item.wilayah ||
+                              item.wilayah
+                                ?.nama ||
                               "-"
                             }
+                          </td>
+
+                          {/* KODE */}
+
+                          <td
+                            className="
+                              px-4
+                              py-4
+                              font-mono
+                              text-slate-500
+                            "
+                          >
+                            {
+                              item.kode_instansi ||
+                              "-"
+                            }
+                          </td>
+
+                          {/* JUMLAH */}
+
+                          <td
+                            className="
+                              px-4
+                              py-4
+                              text-center
+                              font-semibold
+                              text-slate-700
+                            "
+                          >
+                            {
+                              item.jumlah_layanan ??
+                              0
+                            }
+                          </td>
+
+                          {/* STATUS */}
+
+                          <td
+                            className="
+                              px-4
+                              py-4
+                            "
+                          >
+
+                            {aktif ? (
+
+                              <span
+                                className="
+                                  inline-flex
+                                  items-center
+                                  gap-1.5
+                                  rounded-full
+                                  bg-emerald-50
+                                  px-2.5
+                                  py-1
+                                  text-[10px]
+                                  font-semibold
+                                  text-emerald-700
+                                "
+                              >
+
+                                <span
+                                  className="
+                                    h-1.5
+                                    w-1.5
+                                    rounded-full
+                                    bg-emerald-500
+                                  "
+                                />
+
+                                Aktif
+
+                              </span>
+
+                            ) : (
+
+                              <span
+                                className="
+                                  inline-flex
+                                  items-center
+                                  gap-1.5
+                                  rounded-full
+                                  bg-slate-100
+                                  px-2.5
+                                  py-1
+                                  text-[10px]
+                                  font-semibold
+                                  text-slate-600
+                                "
+                              >
+
+                                <span
+                                  className="
+                                    h-1.5
+                                    w-1.5
+                                    rounded-full
+                                    bg-red-500
+                                  "
+                                />
+
+                                Nonaktif
+
+                              </span>
+
+                            )}
+
                           </td>
 
                           {/* AKSI */}
@@ -995,7 +1219,6 @@ export default function KataKunci() {
                                     item
                                   )
                                 }
-                                title="Lihat"
                                 className="
                                   flex
                                   h-7
@@ -1008,6 +1231,7 @@ export default function KataKunci() {
                                   text-slate-500
                                   hover:bg-slate-50
                                 "
+                                title="Lihat"
                               >
 
                                 <Eye
@@ -1022,10 +1246,9 @@ export default function KataKunci() {
                                 type="button"
                                 onClick={() =>
                                   navigate(
-                                    `/kata-kunci/tambah?id=${item.id}`
+                                    `/dinas/tambah?id=${item.id}`
                                   )
                                 }
-                                title="Edit"
                                 className="
                                   flex
                                   h-7
@@ -1038,6 +1261,7 @@ export default function KataKunci() {
                                   text-slate-500
                                   hover:bg-slate-50
                                 "
+                                title="Edit"
                               >
 
                                 <Pencil
@@ -1055,7 +1279,6 @@ export default function KataKunci() {
                                     item
                                   )
                                 }
-                                title="Hapus"
                                 className="
                                   flex
                                   h-7
@@ -1068,6 +1291,7 @@ export default function KataKunci() {
                                   text-red-500
                                   hover:bg-red-50
                                 "
+                                title="Hapus"
                               >
 
                                 <Trash2
@@ -1086,9 +1310,7 @@ export default function KataKunci() {
                     }
                   )}
 
-                  {/* EMPTY */}
-
-                  {rows.length ===
+                  {instansi.length ===
                     0 && (
 
                     <tr>
@@ -1103,7 +1325,7 @@ export default function KataKunci() {
                           text-slate-400
                         "
                       >
-                        Tidak ada data kata kunci yang sesuai.
+                        Tidak ada data instansi yang sesuai.
 
                       </td>
 
@@ -1119,7 +1341,9 @@ export default function KataKunci() {
 
           )}
 
-          {/* PAGINATION */}
+          {/* =================================================
+              PAGINATION
+          ================================================== */}
 
           {!loading && (
 
@@ -1206,8 +1430,6 @@ export default function KataKunci() {
             }
           >
 
-            {/* HEADER */}
-
             <div
               className="
                 flex
@@ -1229,7 +1451,7 @@ export default function KataKunci() {
                     text-slate-800
                   "
                 >
-                  Detail Kata Kunci
+                  Detail Dinas / Instansi
                 </h2>
 
                 <p
@@ -1239,7 +1461,7 @@ export default function KataKunci() {
                     text-slate-400
                   "
                 >
-                  Data dari layanan_keyword
+                  Data langsung dari database
                 </p>
 
               </div>
@@ -1269,8 +1491,6 @@ export default function KataKunci() {
 
             </div>
 
-            {/* BODY */}
-
             <div
               className="
                 space-y-4
@@ -1278,58 +1498,126 @@ export default function KataKunci() {
               "
             >
 
-              <DetailItem
+              <Info
                 label="ID"
                 value={
                   selected.id
                 }
               />
 
-              <DetailItem
-                label="ID Layanan"
-                value={
-                  selected.layanan_id
-                }
-              />
-
-              <DetailItem
-                label="Kata Kunci"
-                value={
-                  selected.keyword
-                }
-              />
-
-              <DetailItem
-                label="Kode Layanan"
-                value={
-                  selected.kode_layanan
-                }
-              />
-
-              <DetailItem
-                label="Nama Layanan"
-                value={
-                  selected.nama_layanan
-                }
-              />
-
-              <DetailItem
-                label="Instansi"
+              <Info
+                label="Nama Instansi"
                 value={
                   selected.nama_instansi
                 }
               />
 
-              <DetailItem
-                label="Wilayah"
+              <Info
+                label="Kode Instansi"
                 value={
-                  selected.wilayah
+                  selected.kode_instansi
                 }
               />
 
-            </div>
+              <Info
+                label="Singkatan"
+                value={
+                  selected.singkatan ||
+                  "-"
+                }
+              />
 
-            {/* FOOTER */}
+              <Info
+                label="Wilayah"
+                value={
+                  selected.wilayah
+                    ?.nama ||
+                  "-"
+                }
+              />
+
+              <Info
+                label="Tipe Wilayah"
+                value={
+                  selected.wilayah
+                    ?.tipe ||
+                  "-"
+                }
+              />
+
+              <Info
+                label="Level Pemerintahan"
+                value={
+                  selected.level
+                    ?.nama ||
+                  "-"
+                }
+              />
+
+              <Info
+                label="Jumlah Layanan"
+                value={
+                  selected.jumlah_layanan ??
+                  0
+                }
+              />
+
+              <Info
+                label="Status"
+                value={
+                  selected.aktif
+                    ? "Aktif"
+                    : "Nonaktif"
+                }
+              />
+
+              {selected.website && (
+
+                <div>
+
+                  <p
+                    className="
+                      mb-1
+                      text-[10px]
+                      font-bold
+                      uppercase
+                      text-slate-400
+                    "
+                  >
+                    Website
+                  </p>
+
+                  <a
+                    href={
+                      selected.website
+                    }
+                    target="_blank"
+                    rel="noreferrer"
+                    className="
+                      inline-flex
+                      items-center
+                      gap-1.5
+                      text-xs
+                      text-red-600
+                      hover:underline
+                    "
+                  >
+
+                    <ExternalLink
+                      size={12}
+                    />
+
+                    {
+                      selected.website
+                    }
+
+                  </a>
+
+                </div>
+
+              )}
+
+            </div>
 
             <div
               className="
@@ -1375,101 +1663,10 @@ export default function KataKunci() {
 }
 
 // ============================================================
-// CARD
+// INFO
 // ============================================================
 
-function KeywordCard({
-  icon: Icon,
-  iconBg,
-  iconColor,
-  label,
-  value,
-  description,
-}) {
-
-  return (
-    <div
-      className="
-        rounded-xl
-        border
-        border-slate-100
-        bg-white
-        p-5
-        shadow-card
-      "
-    >
-
-      <div
-        className="
-          flex
-          items-center
-          gap-3
-        "
-      >
-
-        <div
-          className={`
-            flex
-            h-11
-            w-11
-            shrink-0
-            items-center
-            justify-center
-            rounded-xl
-            ${iconBg}
-            ${iconColor}
-          `}
-        >
-
-          <Icon
-            size={21}
-          />
-
-        </div>
-
-        <div>
-
-          <p
-            className="
-              text-xs
-              text-slate-500
-            "
-          >
-            {label}
-          </p>
-
-          <p
-            className="
-              text-2xl
-              font-bold
-              text-slate-800
-            "
-          >
-            {value}
-          </p>
-
-          <p
-            className="
-              text-[10px]
-              text-slate-400
-            "
-          >
-            {description}
-          </p>
-
-        </div>
-
-      </div>
-
-    </div>
-  );
-}
-
-// ============================================================
-// DETAIL
-// ============================================================
-
-function DetailItem({
+function Info({
   label,
   value,
 }) {
@@ -1499,6 +1696,84 @@ function DetailItem({
         {value || "-"}
       </p>
 
+    </div>
+  );
+}
+// ============================================================
+// STAT CARD
+// ============================================================
+
+function StatCard({
+  icon: Icon,
+  iconBg,
+  iconColor,
+  label,
+  value,
+  helper,
+}) {
+  return (
+    <div
+      className="
+        rounded-xl
+        border
+        border-slate-100
+        bg-white
+        p-5
+        shadow-card
+      "
+    >
+      <div
+        className="
+          flex
+          items-center
+          gap-3
+        "
+      >
+        <div
+          className={`
+            flex
+            h-11
+            w-11
+            items-center
+            justify-center
+            rounded-xl
+            ${iconBg}
+            ${iconColor}
+          `}
+        >
+          <Icon size={21} />
+        </div>
+
+        <div>
+          <p
+            className="
+              text-xs
+              text-slate-500
+            "
+          >
+            {label}
+          </p>
+
+          <p
+            className="
+              text-2xl
+              font-bold
+              text-slate-800
+            "
+          >
+            {value}
+          </p>
+
+          <p
+            className="
+              text-[10px]
+              text-slate-400
+            "
+          >
+            {helper}
+          </p>
+        </div>
+      </div>
     </div>
   );
 }
