@@ -10,15 +10,15 @@ import {
 
 import {
   Search,
-  Tags,
+  Users,
   Database,
-  Layers,
-  Hash,
   Eye,
   Pencil,
   Trash2,
   X,
   RefreshCcw,
+  UserPlus,
+  ShieldCheck,
 } from "lucide-react";
 
 import Topbar from "../components/Topbar";
@@ -33,7 +33,7 @@ import {
 // PAGE
 // ============================================================
 
-export default function KataKunci() {
+export default function Pengguna() {
 
   const navigate =
     useNavigate();
@@ -55,10 +55,7 @@ export default function KataKunci() {
     summary,
     setSummary,
   ] = useState({
-    total_keyword: 0,
-    keyword_unik: 0,
-    total_layanan: 0,
-    layanan_punya_keyword: 0,
+    total: 0,
   });
 
   // ==========================================================
@@ -85,13 +82,17 @@ export default function KataKunci() {
   });
 
   // ==========================================================
-  // STATE
+  // LOADING
   // ==========================================================
 
   const [
     loading,
     setLoading,
   ] = useState(true);
+
+  // ==========================================================
+  // ERROR
+  // ==========================================================
 
   const [
     error,
@@ -122,29 +123,32 @@ export default function KataKunci() {
 
       const result =
         await apiRequest(
-          "/layanan-keyword/summary"
+          "/users/summary"
         );
 
-      setSummary(
-        result?.data || {
-          total_keyword: 0,
-          keyword_unik: 0,
-          total_layanan: 0,
-          layanan_punya_keyword: 0,
-        }
-      );
+      if (
+        result?.success
+      ) {
+
+        setSummary(
+          result.data ||
+          {
+            total: 0,
+          }
+        );
+      }
 
     } catch (err) {
 
       console.error(
-        "Gagal mengambil summary keyword:",
+        "Gagal mengambil summary pengguna:",
         err
       );
     }
   }
 
   // ==========================================================
-  // LOAD DATA
+  // LOAD USERS
   // ==========================================================
 
   async function loadData() {
@@ -183,27 +187,38 @@ export default function KataKunci() {
 
       const result =
         await apiRequest(
-          `/layanan-keyword?${params.toString()}`
+          `/users?${params.toString()}`
         );
-
-      setRows(
-        result?.data || []
-      );
 
       if (
-        result?.pagination
+        result?.success
       ) {
 
-        setPagination(
-          result.pagination
+        setRows(
+          result.data ||
+          []
         );
+
+        if (
+          result.pagination
+        ) {
+
+          setPagination(
+            result.pagination
+          );
+        }
+
+      } else {
+
+        setRows([]);
+
       }
 
     } catch (err) {
 
       setError(
         err.message ||
-        "Gagal mengambil data kata kunci."
+        "Gagal mengambil data pengguna."
       );
 
       setRows([]);
@@ -211,7 +226,6 @@ export default function KataKunci() {
     } finally {
 
       setLoading(false);
-
     }
   }
 
@@ -224,10 +238,6 @@ export default function KataKunci() {
     loadSummary();
 
   }, []);
-
-  // ==========================================================
-  // DATA
-  // ==========================================================
 
   useEffect(() => {
 
@@ -260,7 +270,7 @@ export default function KataKunci() {
   }
 
   // ==========================================================
-  // VIEW
+  // VIEW DETAIL
   // ==========================================================
 
   async function handleView(
@@ -271,7 +281,7 @@ export default function KataKunci() {
 
       const result =
         await apiRequest(
-          `/layanan-keyword/${item.id}`
+          `/users/${item.id}`
         );
 
       setSelected(
@@ -284,7 +294,6 @@ export default function KataKunci() {
       setSelected(
         item
       );
-
     }
 
     setShowDetail(
@@ -302,7 +311,7 @@ export default function KataKunci() {
 
     const confirmed =
       window.confirm(
-        `Hapus kata kunci "${item.keyword}"?`
+        `Hapus pengguna "${item.username}"?`
       );
 
     if (!confirmed) {
@@ -312,9 +321,10 @@ export default function KataKunci() {
     try {
 
       await apiRequest(
-        `/layanan-keyword/${item.id}`,
+        `/users/${item.id}`,
         {
-          method: "DELETE",
+          method:
+            "DELETE",
         }
       );
 
@@ -343,7 +353,7 @@ export default function KataKunci() {
 
       window.alert(
         err.message ||
-        "Gagal menghapus kata kunci."
+        "Gagal menghapus pengguna."
       );
     }
   }
@@ -361,7 +371,7 @@ export default function KataKunci() {
   }
 
   // ==========================================================
-  // CLOSE DETAIL
+  // CLOSE
   // ==========================================================
 
   function closeDetail() {
@@ -382,15 +392,11 @@ export default function KataKunci() {
       ====================================================== */}
 
       <Topbar
-        title="Kata Kunci"
+        title="Pengguna"
         subtitle="
-          Kelola kata kunci layanan informasi publik
+          Kelola akun pengguna dashboard admin
         "
       />
-
-      {/* =====================================================
-          MAIN
-      ====================================================== */}
 
       <main
         className="
@@ -400,7 +406,9 @@ export default function KataKunci() {
         "
       >
 
-        {/* BREADCRUMB */}
+        {/* ===================================================
+            BREADCRUMB
+        ==================================================== */}
 
         <Breadcrumb
           items={[
@@ -413,12 +421,14 @@ export default function KataKunci() {
 
             {
               label:
-                "Kata Kunci",
+                "Pengguna",
             },
           ]}
         />
 
-        {/* ERROR */}
+        {/* ===================================================
+            ERROR
+        ==================================================== */}
 
         {error && (
 
@@ -451,59 +461,46 @@ export default function KataKunci() {
             grid-cols-1
             gap-4
             sm:grid-cols-2
-            xl:grid-cols-4
+            xl:grid-cols-3
           "
         >
 
-          <KeywordCard
+          <UserCard
             icon={Database}
             iconBg="bg-red-50"
             iconColor="text-red-600"
-            label="Total Kata Kunci"
+            label="Total Pengguna"
             value={
-              summary.total_keyword
+              summary.total
             }
             description="
-              Seluruh record keyword
+              Seluruh akun pengguna
             "
           />
 
-          <KeywordCard
-            icon={Hash}
+          <UserCard
+            icon={Users}
             iconBg="bg-blue-50"
             iconColor="text-blue-600"
-            label="Kata Kunci Unik"
+            label="Akun Terdaftar"
             value={
-              summary.keyword_unik
+              summary.total
             }
             description="
-              Keyword unik
+              Data dari tabel users
             "
           />
 
-          <KeywordCard
-            icon={Layers}
+          <UserCard
+            icon={ShieldCheck}
             iconBg="bg-emerald-50"
             iconColor="text-emerald-600"
-            label="Total Layanan"
+            label="Akses Dashboard"
             value={
-              summary.total_layanan
+              summary.total
             }
             description="
-              Seluruh layanan
-            "
-          />
-
-          <KeywordCard
-            icon={Tags}
-            iconBg="bg-amber-50"
-            iconColor="text-amber-600"
-            label="Layanan Ber-keyword"
-            value={
-              summary.layanan_punya_keyword
-            }
-            description="
-              Layanan memiliki keyword
+              Akun yang tersimpan
             "
           />
 
@@ -549,7 +546,7 @@ export default function KataKunci() {
                   text-slate-700
                 "
               >
-                Daftar Kata Kunci
+                Daftar Pengguna
               </h2>
 
               <p
@@ -559,7 +556,7 @@ export default function KataKunci() {
                   text-slate-400
                 "
               >
-                Data berasal langsung dari tabel layanan_keyword.
+                Data diambil langsung dari tabel users.
               </p>
 
             </div>
@@ -603,7 +600,7 @@ export default function KataKunci() {
               </button>
 
               <Link
-                to="/kata-kunci/tambah"
+                to="/pengguna/tambah"
                 className="
                   flex
                   items-center
@@ -619,11 +616,11 @@ export default function KataKunci() {
                 "
               >
 
-                <Tags
+                <UserPlus
                   size={13}
                 />
 
-                Tambah Kata Kunci
+                Tambah Pengguna
 
               </Link>
 
@@ -671,7 +668,7 @@ export default function KataKunci() {
                   handleSearch
                 }
                 placeholder="
-                  Cari kata kunci, layanan, instansi, wilayah...
+                  Cari username...
                 "
                 className="
                   w-full
@@ -695,7 +692,9 @@ export default function KataKunci() {
 
           </div>
 
-          {/* LOADING */}
+          {/* =================================================
+              LOADING
+          ================================================== */}
 
           {loading ? (
 
@@ -708,7 +707,7 @@ export default function KataKunci() {
                 text-slate-400
               "
             >
-              Memuat data kata kunci...
+              Memuat data pengguna...
             </div>
 
           ) : (
@@ -722,7 +721,7 @@ export default function KataKunci() {
               <table
                 className="
                   w-full
-                  min-w-[1100px]
+                  min-w-[700px]
                   text-left
                   text-xs
                 "
@@ -741,7 +740,7 @@ export default function KataKunci() {
 
                     <th
                       className="
-                        w-12
+                        w-16
                         px-4
                         py-3
                         text-center
@@ -758,7 +757,7 @@ export default function KataKunci() {
                         font-bold
                       "
                     >
-                      Kata Kunci
+                      Username
                     </th>
 
                     <th
@@ -768,42 +767,23 @@ export default function KataKunci() {
                         font-bold
                       "
                     >
-                      Kode Layanan
+                      Password
                     </th>
 
                     <th
                       className="
                         px-4
                         py-3
+                        text-center
                         font-bold
                       "
                     >
-                      Nama Layanan
+                      Status
                     </th>
 
                     <th
                       className="
-                        px-4
-                        py-3
-                        font-bold
-                      "
-                    >
-                      Instansi
-                    </th>
-
-                    <th
-                      className="
-                        px-4
-                        py-3
-                        font-bold
-                      "
-                    >
-                      Wilayah
-                    </th>
-
-                    <th
-                      className="
-                        w-24
+                        w-32
                         px-4
                         py-3
                         text-center
@@ -860,7 +840,7 @@ export default function KataKunci() {
                             {nomor}
                           </td>
 
-                          {/* KEYWORD */}
+                          {/* USERNAME */}
 
                           <td
                             className="
@@ -869,106 +849,118 @@ export default function KataKunci() {
                             "
                           >
 
-                            <span
+                            <div
                               className="
-                                inline-flex
-                                rounded-md
-                                bg-blue-50
-                                px-2.5
-                                py-1
-                                text-[10px]
-                                font-semibold
-                                text-blue-700
+                                flex
+                                items-center
+                                gap-3
                               "
                             >
-                              {
-                                item.keyword ||
-                                "-"
-                              }
-                            </span>
+
+                              <div
+                                className="
+                                  flex
+                                  h-8
+                                  w-8
+                                  items-center
+                                  justify-center
+                                  rounded-full
+                                  bg-red-50
+                                  text-red-600
+                                "
+                              >
+
+                                <Users
+                                  size={14}
+                                />
+
+                              </div>
+
+                              <div>
+
+                                <p
+                                  className="
+                                    font-semibold
+                                    text-slate-800
+                                  "
+                                >
+                                  {
+                                    item.username
+                                  }
+                                </p>
+
+                                <p
+                                  className="
+                                    mt-0.5
+                                    text-[10px]
+                                    text-slate-400
+                                  "
+                                >
+                                  ID: {
+                                    item.id
+                                  }
+                                </p>
+
+                              </div>
+
+                            </div>
 
                           </td>
 
-                          {/* KODE */}
+                          {/* PASSWORD */}
 
                           <td
                             className="
                               px-4
                               py-4
                               font-mono
-                              text-[10px]
-                              text-slate-500
+                              text-slate-400
                             "
                           >
-                            {
-                              item.kode_layanan ||
-                              "-"
-                            }
+                            ••••••••••
                           </td>
 
-                          {/* LAYANAN */}
+                          {/* STATUS */}
 
                           <td
                             className="
                               px-4
                               py-4
+                              text-center
                             "
                           >
 
-                            <p
+                            <span
                               className="
-                                max-w-[260px]
+                                inline-flex
+                                items-center
+                                gap-1.5
+                                rounded-full
+                                bg-emerald-50
+                                px-2.5
+                                py-1
+                                text-[10px]
                                 font-semibold
-                                text-slate-800
+                                text-emerald-700
                               "
                             >
-                              {
-                                item.nama_layanan ||
-                                "-"
-                              }
-                            </p>
+
+                              <span
+                                className="
+                                  h-1.5
+                                  w-1.5
+                                  rounded-full
+                                  bg-emerald-500
+                                "
+                              />
+
+                              Aktif
+
+                            </span>
 
                           </td>
 
-                          {/* INSTANSI */}
-
-                          <td
-                            className="
-                              px-4
-                              py-4
-                              text-slate-600
-                            "
-                          >
-
-                            <p
-                              className="
-                                max-w-[260px]
-                              "
-                            >
-                              {
-                                item.nama_instansi ||
-                                "-"
-                              }
-                            </p>
-
-                          </td>
-
-                          {/* WILAYAH */}
-
-                          <td
-                            className="
-                              px-4
-                              py-4
-                              text-slate-600
-                            "
-                          >
-                            {
-                              item.wilayah ||
-                              "-"
-                            }
-                          </td>
-
-                          {/* AKSI */}
+                          {/* ACTION */}
 
                           <td
                             className="
@@ -1022,7 +1014,7 @@ export default function KataKunci() {
                                 type="button"
                                 onClick={() =>
                                   navigate(
-                                    `/kata-kunci/tambah?id=${item.id}`
+                                    `/pengguna/tambah?id=${item.id}`
                                   )
                                 }
                                 title="Edit"
@@ -1086,15 +1078,13 @@ export default function KataKunci() {
                     }
                   )}
 
-                  {/* EMPTY */}
-
                   {rows.length ===
                     0 && (
 
                     <tr>
 
                       <td
-                        colSpan={7}
+                        colSpan={5}
                         className="
                           px-4
                           py-14
@@ -1103,7 +1093,7 @@ export default function KataKunci() {
                           text-slate-400
                         "
                       >
-                        Tidak ada data kata kunci yang sesuai.
+                        Tidak ada pengguna yang ditemukan.
 
                       </td>
 
@@ -1119,7 +1109,9 @@ export default function KataKunci() {
 
           )}
 
-          {/* PAGINATION */}
+          {/* =================================================
+              PAGINATION
+          ================================================== */}
 
           {!loading && (
 
@@ -1195,7 +1187,7 @@ export default function KataKunci() {
           <div
             className="
               w-full
-              max-w-xl
+              max-w-md
               overflow-hidden
               rounded-2xl
               bg-white
@@ -1205,8 +1197,6 @@ export default function KataKunci() {
               e.stopPropagation()
             }
           >
-
-            {/* HEADER */}
 
             <div
               className="
@@ -1229,7 +1219,7 @@ export default function KataKunci() {
                     text-slate-800
                   "
                 >
-                  Detail Kata Kunci
+                  Detail Pengguna
                 </h2>
 
                 <p
@@ -1239,7 +1229,7 @@ export default function KataKunci() {
                     text-slate-400
                   "
                 >
-                  Data dari layanan_keyword
+                  Informasi akun
                 </p>
 
               </div>
@@ -1269,8 +1259,6 @@ export default function KataKunci() {
 
             </div>
 
-            {/* BODY */}
-
             <div
               className="
                 space-y-4
@@ -1286,50 +1274,73 @@ export default function KataKunci() {
               />
 
               <DetailItem
-                label="ID Layanan"
+                label="Username"
                 value={
-                  selected.layanan_id
+                  selected.username
                 }
               />
 
-              <DetailItem
-                label="Kata Kunci"
-                value={
-                  selected.keyword
-                }
-              />
+              <div>
 
-              <DetailItem
-                label="Kode Layanan"
-                value={
-                  selected.kode_layanan
-                }
-              />
+                <p
+                  className="
+                    mb-1
+                    text-[10px]
+                    font-bold
+                    uppercase
+                    text-slate-400
+                  "
+                >
+                  Status
+                </p>
 
-              <DetailItem
-                label="Nama Layanan"
-                value={
-                  selected.nama_layanan
-                }
-              />
+                <span
+                  className="
+                    inline-flex
+                    items-center
+                    gap-1.5
+                    rounded-full
+                    bg-emerald-50
+                    px-2.5
+                    py-1
+                    text-[10px]
+                    font-semibold
+                    text-emerald-700
+                  "
+                >
 
-              <DetailItem
-                label="Instansi"
-                value={
-                  selected.nama_instansi
-                }
-              />
+                  <span
+                    className="
+                      h-1.5
+                      w-1.5
+                      rounded-full
+                      bg-emerald-500
+                    "
+                  />
 
-              <DetailItem
-                label="Wilayah"
-                value={
-                  selected.wilayah
-                }
-              />
+                  Aktif
+
+                </span>
+
+              </div>
+
+              <div
+                className="
+                  rounded-lg
+                  border
+                  border-blue-200
+                  bg-blue-50
+                  p-3
+                  text-[11px]
+                  leading-5
+                  text-blue-700
+                "
+              >
+                Password tersimpan dalam bentuk hash
+                dan tidak ditampilkan pada dashboard.
+              </div>
 
             </div>
-
-            {/* FOOTER */}
 
             <div
               className="
@@ -1378,7 +1389,7 @@ export default function KataKunci() {
 // CARD
 // ============================================================
 
-function KeywordCard({
+function UserCard({
   icon: Icon,
   iconBg,
   iconColor,
@@ -1466,7 +1477,7 @@ function KeywordCard({
 }
 
 // ============================================================
-// DETAIL
+// DETAIL ITEM
 // ============================================================
 
 function DetailItem({

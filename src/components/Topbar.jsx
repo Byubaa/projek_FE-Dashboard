@@ -1,133 +1,714 @@
-import { useState, useRef, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { Menu, Search, Moon, Bell, ChevronDown, LogOut, User } from "lucide-react";
-import Avatar from "./Avatar";
+import {
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 
-export default function Topbar({ title, subtitle, notifCount = 5 }) {
-  const navigate = useNavigate();
-  const [dropdownOpen, setDropdownOpen] = useState(false);
-  const dropdownRef = useRef(null);
+import {
+  useLocation,
+  useNavigate,
+  useSearchParams,
+} from "react-router-dom";
+
+import {
+  Search,
+  Moon,
+  Bell,
+  ChevronDown,
+  LogOut,
+  User,
+} from "lucide-react";
+
+// ============================================================
+// TOPBAR
+// ============================================================
+
+export default function Topbar({
+  title,
+  subtitle,
+}) {
+  const navigate =
+    useNavigate();
+
+  const location =
+    useLocation();
+
+  const [
+    searchParams,
+  ] = useSearchParams();
+
+  // ==========================================================
+  // SEARCH
+  // ==========================================================
+
+  const [
+    searchInput,
+    setSearchInput,
+  ] = useState("");
+
+  // ==========================================================
+  // USER MENU
+  // ==========================================================
+
+  const [
+    userMenuOpen,
+    setUserMenuOpen,
+  ] = useState(false);
+
+  const userMenuRef =
+    useRef(null);
+
+  // ==========================================================
+  // SINKRONISASI SEARCH DENGAN URL
+  // ==========================================================
 
   useEffect(() => {
-    function handleClickOutside(event) {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setDropdownOpen(false);
+
+    const urlSearch =
+      searchParams.get(
+        "search"
+      ) || "";
+
+    setSearchInput(
+      urlSearch
+    );
+
+  }, [
+    searchParams,
+  ]);
+
+  // ==========================================================
+  // CLOSE USER MENU SAAT KLIK DI LUAR
+  // ==========================================================
+
+  useEffect(() => {
+
+    function handleClickOutside(
+      event
+    ) {
+
+      if (
+        userMenuRef.current &&
+        !userMenuRef.current.contains(
+          event.target
+        )
+      ) {
+
+        setUserMenuOpen(
+          false
+        );
       }
     }
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+
+    document.addEventListener(
+      "mousedown",
+      handleClickOutside
+    );
+
+    return () => {
+      document.removeEventListener(
+        "mousedown",
+        handleClickOutside
+      );
+    };
+
   }, []);
 
-  function handleLogout() {
-    setDropdownOpen(false);
-    localStorage.removeItem("isLoggedIn");
-    navigate("/login");
+  // ==========================================================
+  // SEARCH SUBMIT
+  // ==========================================================
+
+  function handleSearchSubmit(
+    e
+  ) {
+
+    e.preventDefault();
+
+    const query =
+      searchInput.trim();
+
+    if (!query) {
+
+      navigate(
+        "/data-layanan"
+      );
+
+      return;
+    }
+
+    navigate(
+      `/data-layanan?search=${encodeURIComponent(
+        query
+      )}`
+    );
   }
 
+  // ==========================================================
+  // SEARCH CHANGE
+  // ==========================================================
+
+  function handleSearchChange(
+    e
+  ) {
+
+    setSearchInput(
+      e.target.value
+    );
+  }
+
+  // ==========================================================
+  // CLEAR SEARCH
+  // ==========================================================
+
+  function handleClearSearch() {
+
+    setSearchInput("");
+
+    if (
+      location.pathname ===
+      "/data-layanan"
+    ) {
+
+      navigate(
+        "/data-layanan"
+      );
+    }
+  }
+
+  // ==========================================================
+  // LOGOUT
+  // ==========================================================
+
+  function handleLogout() {
+
+    // --------------------------------------------------------
+    // Hapus JWT
+    // --------------------------------------------------------
+
+    localStorage.removeItem(
+      "token"
+    );
+
+    // --------------------------------------------------------
+    // Hapus data user
+    // --------------------------------------------------------
+
+    localStorage.removeItem(
+      "user"
+    );
+
+    // --------------------------------------------------------
+    // Hapus status login lama
+    // --------------------------------------------------------
+
+    localStorage.removeItem(
+      "isLoggedIn"
+    );
+
+    // --------------------------------------------------------
+    // Tutup menu
+    // --------------------------------------------------------
+
+    setUserMenuOpen(
+      false
+    );
+
+    // --------------------------------------------------------
+    // Kembali ke login
+    // --------------------------------------------------------
+
+    navigate(
+      "/login",
+      {
+        replace: true,
+      }
+    );
+  }
+
+  // ==========================================================
+  // AMBIL DATA USER
+  // ==========================================================
+
+  let user = null;
+
+  try {
+
+    const storedUser =
+      localStorage.getItem(
+        "user"
+      );
+
+    if (storedUser) {
+      user =
+        JSON.parse(
+          storedUser
+        );
+    }
+
+  } catch {
+    user = null;
+  }
+
+  const username =
+    user?.username ||
+    "Admin PPID";
+
+  // Ambil inisial
+  const initials =
+    username
+      .split(" ")
+      .filter(Boolean)
+      .map(
+        (word) =>
+          word[0]
+            ?.toUpperCase()
+      )
+      .join("")
+      .slice(0, 2) ||
+    "AP";
+
   return (
-    <header className="sticky top-0 z-10 flex items-center justify-between gap-4 bg-white border-b border-slate-200 px-6 py-4">
-      <div className="flex items-center gap-4 min-w-0">
-        <button
-          type="button"
-          className="lg:hidden text-slate-500 hover:text-slate-700"
-          aria-label="Buka menu"
+    <header
+      className="
+        h-[104px]
+        border-b
+        border-slate-200
+        bg-white
+        flex
+        items-center
+        justify-between
+        px-8
+        shrink-0
+      "
+    >
+
+      {/* ====================================================
+          LEFT
+      ===================================================== */}
+
+      <div>
+
+        <h1
+          className="
+            text-2xl
+            font-bold
+            text-slate-800
+            leading-tight
+          "
         >
-          <Menu size={20} />
-        </button>
-        <div className="min-w-0">
-          <h1 className="text-xl font-semibold text-slate-800 truncate">{title}</h1>
-          {subtitle && <p className="text-sm text-slate-500 truncate">{subtitle}</p>}
-        </div>
+          {title}
+        </h1>
+
+        <p
+          className="
+            text-sm
+            text-slate-500
+            mt-0.5
+          "
+        >
+          {subtitle}
+        </p>
+
       </div>
 
-      <div className="flex items-center gap-4 shrink-0">
-        <label className="relative hidden md:block">
-          <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+      {/* ====================================================
+          RIGHT
+      ===================================================== */}
+
+      <div
+        className="
+          flex
+          items-center
+          gap-5
+        "
+      >
+
+        {/* ==================================================
+            GLOBAL SEARCH
+        =================================================== */}
+
+        <form
+          onSubmit={
+            handleSearchSubmit
+          }
+          className="
+            relative
+            w-[320px]
+          "
+        >
+
+          <Search
+            size={19}
+            className="
+              absolute
+              left-4
+              top-1/2
+              -translate-y-1/2
+              text-slate-400
+              pointer-events-none
+            "
+          />
+
           <input
             type="text"
-            placeholder="Cari layanan, dinas, kata kunci..."
-            className="w-64 rounded-lg border border-slate-300 bg-white py-2 pl-9 pr-3 text-sm text-slate-600 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-400"
+            value={
+              searchInput
+            }
+            onChange={
+              handleSearchChange
+            }
+            placeholder="
+              Cari layanan, dinas, kata kunci...
+            "
+            className="
+              w-full
+              h-[46px]
+              rounded-xl
+              border
+              border-slate-300
+              bg-white
+              pl-11
+              pr-10
+              text-sm
+              text-slate-700
+              placeholder:text-slate-400
+              outline-none
+              focus:border-brand-500
+              focus:ring-2
+              focus:ring-brand-100
+              transition
+            "
           />
-        </label>
 
-        <button
-          type="button"
-          className="text-slate-500 hover:text-slate-700"
-          aria-label="Ganti tema"
-        >
-          <Moon size={18} />
-        </button>
-
-        <button
-          type="button"
-          className="relative text-slate-500 hover:text-slate-700"
-          aria-label="Notifikasi"
-        >
-          <Bell size={18} />
-          {notifCount > 0 && (
-            <span className="absolute -top-1.5 -right-1.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-semibold text-white">
-              {notifCount}
-            </span>
+          {searchInput && (
+            <button
+              type="button"
+              onClick={
+                handleClearSearch
+              }
+              className="
+                absolute
+                right-3
+                top-1/2
+                -translate-y-1/2
+                text-slate-400
+                hover:text-slate-600
+              "
+              title="Hapus pencarian"
+            >
+              ×
+            </button>
           )}
+
+        </form>
+
+        {/* ==================================================
+            DARK MODE
+        =================================================== */}
+
+        <button
+          type="button"
+          className="
+            text-slate-500
+            hover:text-slate-700
+            transition
+          "
+          title="Mode gelap"
+        >
+          <Moon size={21} />
         </button>
 
-        {/* Profile Dropdown */}
-        <div className="relative" ref={dropdownRef}>
+        {/* ==================================================
+            NOTIFICATION
+        =================================================== */}
+
+        <button
+          type="button"
+          className="
+            relative
+            text-slate-500
+            hover:text-slate-700
+            transition
+          "
+          title="Notifikasi"
+        >
+
+          <Bell size={21} />
+
+          <span
+            className="
+              absolute
+              -right-2
+              -top-2
+              flex
+              h-5
+              min-w-5
+              items-center
+              justify-center
+              rounded-full
+              bg-red-500
+              px-1
+              text-[10px]
+              font-bold
+              text-white
+            "
+          >
+            5
+          </span>
+
+        </button>
+
+        {/* ==================================================
+            USER MENU
+        =================================================== */}
+
+        <div
+          className="
+            relative
+          "
+          ref={userMenuRef}
+        >
+
+          {/* USER BUTTON */}
+
           <button
             type="button"
-            onClick={() => setDropdownOpen((prev) => !prev)}
-            className="flex items-center gap-2 rounded-lg pl-1 pr-2 py-1 hover:bg-slate-100 transition-colors focus:outline-none"
-            aria-expanded={dropdownOpen}
-            aria-haspopup="true"
+            onClick={() =>
+              setUserMenuOpen(
+                (value) =>
+                  !value
+              )
+            }
+            className="
+              flex
+              items-center
+              gap-2
+              rounded-lg
+              px-1
+              py-1
+              hover:bg-slate-50
+              transition
+            "
           >
-            <Avatar name="Admin PPID" size={34} />
-            <span className="hidden sm:block text-xs font-semibold text-slate-600">Admin PPID</span>
+
+            {/* AVATAR */}
+
+            <div
+              className="
+                flex
+                h-11
+                w-11
+                items-center
+                justify-center
+                rounded-full
+                bg-red-500
+                text-sm
+                font-bold
+                text-white
+              "
+            >
+              {initials}
+            </div>
+
+            {/* USERNAME */}
+
+            <span
+              className="
+                max-w-[130px]
+                truncate
+                text-sm
+                font-semibold
+                text-slate-700
+              "
+            >
+              {username}
+            </span>
+
             <ChevronDown
-              size={12}
-              className={`hidden sm:block text-slate-400 transition-transform duration-200 ${
-                dropdownOpen ? "rotate-180" : ""
-              }`}
+              size={17}
+              className={`
+                text-slate-500
+                transition-transform
+                ${
+                  userMenuOpen
+                    ? "rotate-180"
+                    : ""
+                }
+              `}
             />
+
           </button>
 
-          {dropdownOpen && (
-            <div className="absolute right-0 mt-2 w-56 rounded-xl bg-white p-2 shadow-xl border border-slate-100 z-50">
-              <div className="px-3 py-2.5 border-b border-slate-100">
-                <p className="text-xs font-bold text-slate-800">Admin PPID</p>
-                <p className="text-[11px] text-slate-400">admin.ppid@jogjaprov.go.id</p>
-                <span className="mt-1 inline-flex items-center gap-1 rounded bg-red-50 px-2 py-0.5 text-[10px] font-semibold text-brand-600">
-                  Super Admin
-                </span>
+          {/* =================================================
+              DROPDOWN
+          ================================================== */}
+
+          {userMenuOpen && (
+
+            <div
+              className="
+                absolute
+                right-0
+                top-full
+                z-50
+                mt-2
+                w-56
+                rounded-xl
+                border
+                border-slate-200
+                bg-white
+                p-2
+                shadow-xl
+              "
+            >
+
+              {/* USER INFO */}
+
+              <div
+                className="
+                  flex
+                  items-center
+                  gap-3
+                  rounded-lg
+                  px-3
+                  py-3
+                  mb-1
+                "
+              >
+
+                <div
+                  className="
+                    flex
+                    h-9
+                    w-9
+                    items-center
+                    justify-center
+                    rounded-full
+                    bg-red-100
+                    text-xs
+                    font-bold
+                    text-red-600
+                  "
+                >
+                  {initials}
+                </div>
+
+                <div
+                  className="
+                    min-w-0
+                  "
+                >
+
+                  <p
+                    className="
+                      truncate
+                      text-xs
+                      font-semibold
+                      text-slate-700
+                    "
+                  >
+                    {username}
+                  </p>
+
+                  <p
+                    className="
+                      text-[10px]
+                      text-slate-400
+                    "
+                  >
+                    Administrator
+                  </p>
+
+                </div>
+
               </div>
 
-              <div className="py-1">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setDropdownOpen(false);
-                    navigate("/pengguna");
-                  }}
-                  className="w-full flex items-center gap-2.5 px-3 py-2 text-xs text-slate-600 hover:bg-slate-50 rounded-lg transition-colors text-left"
-                >
-                  <User size={14} className="text-slate-400" />
-                  <span>Profil Akun</span>
-                </button>
-              </div>
+              <div
+                className="
+                  my-1
+                  border-t
+                  border-slate-100
+                "
+              />
 
-              <div className="pt-1 border-t border-slate-100">
-                <button
-                  type="button"
-                  onClick={handleLogout}
-                  className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-semibold text-red-600 hover:bg-red-50 rounded-lg transition-colors text-left"
-                >
-                  <LogOut size={14} className="text-red-500" />
-                  <span>Logout</span>
-                </button>
-              </div>
+              {/* PROFILE */}
+
+              <button
+                type="button"
+                onClick={() => {
+                  setUserMenuOpen(
+                    false
+                  );
+
+                  navigate(
+                    "/pengguna"
+                  );
+                }}
+                className="
+                  flex
+                  w-full
+                  items-center
+                  gap-3
+                  rounded-lg
+                  px-3
+                  py-2.5
+                  text-left
+                  text-xs
+                  text-slate-600
+                  hover:bg-slate-50
+                "
+              >
+
+                <User
+                  size={15}
+                  className="
+                    text-slate-400
+                  "
+                />
+
+                Profil
+
+              </button>
+
+              {/* LOGOUT */}
+
+              <button
+                type="button"
+                onClick={
+                  handleLogout
+                }
+                className="
+                  flex
+                  w-full
+                  items-center
+                  gap-3
+                  rounded-lg
+                  px-3
+                  py-2.5
+                  text-left
+                  text-xs
+                  font-semibold
+                  text-red-600
+                  hover:bg-red-50
+                "
+              >
+
+                <LogOut
+                  size={15}
+                />
+
+                Logout
+
+              </button>
+
             </div>
+
           )}
+
         </div>
+
       </div>
+
     </header>
   );
 }
